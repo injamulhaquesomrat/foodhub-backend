@@ -13,14 +13,9 @@ app.use(
 
 app.use(express.json());
 
-// posts
-// app.use("/posts", postRouter);
-
-// comments
-// app.use("/comments", commentRouter);
 
 app.get("/", (req, res) => {
-  res.send("hello world");
+  res.send("FoodHub Backend is Successfully Running");
 });
 
 export default app;
