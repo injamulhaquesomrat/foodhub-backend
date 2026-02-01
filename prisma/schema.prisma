@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  PROVIDER
+  ADMIN
+}
+
+enum MealCategory {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  CARD
+  WALLET
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  phone     String?
+  role      Role      @default(USER)
+  isActive  Boolean   @default(true)
+  provider  Provider?
+  orders    Order[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Provider {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  name      String
+  description String?
+  logo      String?
+  location  String?
+  isActive  Boolean   @default(true)
+  meals     Meal[]
+  orders    Order[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Meal {
+  id         String      @id @default(uuid())
+  provider   Provider    @relation(fields: [providerId], references: [id])
+  providerId String
+  title      String
+  description String?
+  price      Float
+  image      String?
+  calories   Int?
+  OrderItems OrderItem[]
+  category   MealCategory
+  isAvailable Boolean @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Order {
+  id            String       @id @default(uuid())
+  user          User         @relation(fields: [userId], references: [id])
+  userId        String
+  provider      Provider     @relation(fields: [providerId], references: [id])
+  providerId    String
+  items         OrderItem[]
+  totalAmount   Float
+  status        OrderStatus  @default(PENDING)
+  paymentMethod PaymentMethod @default(COD)
+  deliveryStreet String?
+  deliveryCity   String?
+  deliveryPhone  String?
+  deliveryNotes  String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  order       Order   @relation(fields: [orderId], references: [id])
+  orderId     String
+  meal        Meal    @relation(fields: [mealId], references: [id])
+  mealId      String
+  titleSnapshot String
+  priceSnapshot Float
+  quantity    Int
+}
